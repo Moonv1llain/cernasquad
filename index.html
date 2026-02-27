@@ -677,31 +677,48 @@ function mergeScore(rows, name, score){
 async function lbFetch(){
   if(!JSONBIN_ID)return localLoad();
   try{
-    const r=await fetch(`${JSONBIN_BASE}/${JSONBIN_ID}/latest`,{headers:{'X-Master-Key':JSONBIN_KEY},signal:AbortSignal.timeout(5000)});
-    if(!r.ok)throw 0;
+    const r=await fetch(`${JSONBIN_BASE}/${JSONBIN_ID}/latest`,{
+      headers:{'X-Master-Key':JSONBIN_KEY,'X-Access-Key':JSONBIN_KEY},
+      signal:AbortSignal.timeout(7000)
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
     const j=await r.json();
-    return Array.isArray(j.record?.scores)?j.record.scores:[];
-  }catch{return localLoad();}
+    const scores=j.record?.scores;
+    if(Array.isArray(scores)){
+      localSave(scores); // keep local cache fresh
+      return scores;
+    }
+    throw new Error('bad shape');
+  }catch(e){
+    console.warn('lbFetch fell back to local:',e.message);
+    return localLoad(); // fallback to local cache
+  }
 }
 
 // ── submit a score (returns Promise<top10[]>) ──
 async function lbSubmit(name,score){
-  localSetPB(name,score); // always save PB locally
+  localSetPB(name,score); // always save PB locally first
   if(!JSONBIN_ID){
-    // local-only fallback
     const rows=mergeScore(localLoad(),name,score);
     localSave(rows);return rows.slice(0,10);
   }
   try{
-    // read → merge → write
     const existing=await lbFetch();
     const updated=mergeScore(existing,name,score);
-    await fetch(`${JSONBIN_BASE}/${JSONBIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},body:JSON.stringify({scores:updated}),signal:AbortSignal.timeout(6000)});
-    localSave(updated); // cache locally too
+    const r=await fetch(`${JSONBIN_BASE}/${JSONBIN_ID}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+      body:JSON.stringify({scores:updated}),
+      signal:AbortSignal.timeout(8000)
+    });
+    if(!r.ok)throw new Error('PUT HTTP '+r.status);
+    localSave(updated);
     return updated.slice(0,10);
-  }catch{
-    // network failed — save locally and return local top10
-    const rows=mergeScore(localLoad(),name,score);localSave(rows);return rows.slice(0,10);
+  }catch(e){
+    console.warn('lbSubmit fell back to local:',e.message);
+    const rows=mergeScore(localLoad(),name,score);
+    localSave(rows);
+    return rows.slice(0,10);
   }
 }
 
@@ -973,7 +990,7 @@ changeNameBtn.addEventListener('click',()=>{gameWrap.style.display='none';playin
 
 // game state
 const GAME_TIME=10;
-let gameState='idle',score=0,combo=0,comboTimer=null,recentClicks=[];
+let gameState='idle',score=0,combo=0,comboTimer=null,recentClicks=[],gameSession=0;
 const clickerBtn=document.getElementById('CLICKER_BTN'),gScore=document.getElementById('G_SCORE'),gTime=document.getElementById('G_TIME'),gMulti=document.getElementById('G_MULTI'),gBest=document.getElementById('G_BEST'),gBar=document.getElementById('G_BAR'),gCombo=document.getElementById('G_COMBO'),gCPS=document.getElementById('G_CPS'),gLabel=document.getElementById('CLICKER_LABEL');
 
 function showGameUI(){
@@ -992,6 +1009,7 @@ function hideGameUI(){
 }
 
 function resetGame(){
+  gameSession++; // kill any lingering timer loop
   gameState='idle';score=0;combo=0;recentClicks=[];clearTimeout(comboTimer);
   gScore.textContent='0';
   gTime.textContent=GAME_TIME;
@@ -1008,8 +1026,10 @@ function resetGame(){
 
 function startGame(){
   gameState='playing';score=0;combo=0;recentClicks=[];gLabel.textContent='GO GO GO!';
+  const mySession=++gameSession;
   const t0=performance.now();
   (function tick(now){
+    if(gameSession!==mySession)return;
     if(gameState!=='playing')return;
     const elapsed=(now-t0)/1000,rem=Math.max(0,GAME_TIME-elapsed),pct=rem/GAME_TIME;
     gTime.textContent=Math.ceil(rem);
@@ -1074,20 +1094,43 @@ clickerBtn.addEventListener('touchstart',e=>{e.preventDefault();handleClick(e.to
 document.getElementById('R_AGAIN').addEventListener('click',()=>resetGame());
 
 /* ══════ LEADERBOARD ══════ */
-async function renderLeaderboard(){
-  const list=document.getElementById('LB_LIST'),countEl=document.getElementById('LB_COUNT');if(!list)return;
-  // show loading state while fetching
-  list.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,.2);letter-spacing:3px;font-size:.75rem;font-weight:700">Loading scores…</div>';
-  const rows=await lbGetTop(10);
-  if(!rows.length){list.innerHTML='<div class="lb-empty">No scores yet!<br><br>Play Hot Sauce Clicker above to be first on the board 🌶️</div>';if(countEl)countEl.textContent='';return;}
+function renderRows(rows, countEl, list, label){
+  if(!rows.length){
+    list.innerHTML='<div class="lb-empty">No scores yet!<br><br>Play Hot Sauce Clicker above to be first on the board 🌶️</div>';
+    if(countEl)countEl.textContent='';return;
+  }
   const rankLabels=['gold','silver','bronze'];
-  const currentPlayer=PLAYER.trim().toUpperCase();
+  const currentPlayer=(PLAYER||'').trim().toUpperCase();
   list.innerHTML=rows.map((r,i)=>{
-    const isYou=currentPlayer&&r.name===currentPlayer,crown=i===0?' 🏆':i===1?' 🥈':i===2?' 🥉':'',date=r.ts?new Date(r.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    const isYou=currentPlayer&&r.name===currentPlayer;
+    const crown=i===0?' 🏆':i===1?' 🥈':i===2?' 🥉':'';
+    const date=r.ts?new Date(r.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
     return`<div class="lb-row${isYou?' lb-you':''}"><div class="lb-rank ${rankLabels[i]||''}">#${i+1}</div><div class="lb-name">${r.name}${crown}</div><div class="lb-meta"><span class="lb-score">${r.score}</span>${date?`<span class="lb-date">${date}</span>`:''}</div></div>`;
   }).join('');
-  const isGlobal=JSONBIN_ID?'global':'device';
-  if(countEl)countEl.textContent=rows.length+' scores on '+isGlobal+' leaderboard'+(JSONBIN_ID?'':' — add JSONbin ID for global scores');
+  if(countEl)countEl.textContent=label;
+}
+
+async function renderLeaderboard(){
+  const list=document.getElementById('LB_LIST'),countEl=document.getElementById('LB_COUNT');
+  if(!list)return;
+
+  // Step 1: show local cache immediately (instant, no flicker)
+  const cached=localLoad().sort((a,b)=>b.score-a.score).slice(0,10);
+  if(cached.length){
+    renderRows(cached, countEl, list, JSONBIN_ID?'Loading global scores…':'Scores saved on this device');
+  } else {
+    list.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,.2);letter-spacing:3px;font-size:.75rem;font-weight:700">Loading scores…</div>';
+  }
+
+  // Step 2: fetch global and update (may take a moment)
+  if(JSONBIN_ID){
+    try{
+      const rows=await lbGetTop(10);
+      renderRows(rows, countEl, list, rows.length+' players on global leaderboard 🌍');
+    }catch{
+      // already showing local cache, that's fine
+    }
+  }
 }
 renderLeaderboard();
 
