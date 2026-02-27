@@ -636,19 +636,80 @@ footer{padding:68px 48px 32px;text-align:center;background:var(--bg);color:var(-
 (function(){
 'use strict';
 
-/* ══════ STORAGE ══════ */
-const LB_KEY='cernasquad_clicker_lb_v2';
-function lbLoad(){try{const r=localStorage.getItem(LB_KEY);return r?JSON.parse(r):[]}catch(e){return[]}}
-function lbSave(d){try{localStorage.setItem(LB_KEY,JSON.stringify(d))}catch(e){}}
-function lbSubmit(name,score){
-  const rows=lbLoad(),clean=name.trim().toUpperCase().slice(0,16);
+/* ══════ GLOBAL LEADERBOARD via JSONbin.io (free, no backend needed) ══════
+   HOW TO SET UP YOUR OWN FREE GLOBAL LEADERBOARD:
+   1. Go to https://jsonbin.io and create a free account
+   2. Create a new Bin with initial content: {"scores":[]}
+   3. Copy your Bin ID (looks like: 64abc123...) and API key
+   4. Paste them below — scores will be shared across ALL visitors!
+   
+   Until set up, falls back to localStorage (per-device scores).
+══════════════════════════════════════════════════════════════════════════ */
+const JSONBIN_ID   = '69a214ddd0ea881f40e0232f';       // ← paste your bin ID here e.g. '64abc123def456'
+const JSONBIN_KEY  = '$2a$10$RjEN7.HUwh2vOW75dua3deRQRq7nFfTmJ6SW4ZUvzp125NjgPrdlu';       // ← paste your API key here e.g. '$2a$10$...'
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
+
+const LB_KEY_LOCAL = 'cernasquad_clicker_lb_v2';
+const PB_KEY       = 'cernasquad_pb_v2'; // personal best cache
+
+// ── local helpers (always used for personal best + fallback) ──
+function localLoad(){try{return JSON.parse(localStorage.getItem(LB_KEY_LOCAL)||'[]')}catch{return[]}}
+function localSave(d){try{localStorage.setItem(LB_KEY_LOCAL,JSON.stringify(d))}catch{}}
+function lbGetPersonalBest(name){
+  if(!name)return null;
+  const clean=name.trim().toUpperCase();
+  try{const pb=JSON.parse(localStorage.getItem(PB_KEY)||'{}');return pb[clean]??null}catch{return null}
+}
+function localSetPB(name,score){
+  try{const pb=JSON.parse(localStorage.getItem(PB_KEY)||'{}');if((pb[name]??-1)<score){pb[name]=score;localStorage.setItem(PB_KEY,JSON.stringify(pb))}}catch{}
+}
+
+// ── merge a new score into a rows array, return sorted top-50 ──
+function mergeScore(rows, name, score){
+  const clean=name.trim().toUpperCase().slice(0,16);
   const idx=rows.findIndex(r=>r.name===clean);
   if(idx>=0){if(score>rows[idx].score){rows[idx].score=score;rows[idx].ts=Date.now();}}
   else rows.push({name:clean,score,ts:Date.now()});
-  rows.sort((a,b)=>b.score-a.score);lbSave(rows.slice(0,50));return rows.slice(0,10);
+  return rows.sort((a,b)=>b.score-a.score).slice(0,50);
 }
-function lbGetTop(n){return lbLoad().sort((a,b)=>b.score-a.score).slice(0,n||10)}
-function lbGetPersonalBest(name){if(!name)return null;const r=lbLoad().find(r=>r.name===name.trim().toUpperCase());return r?r.score:null}
+
+// ── fetch global scores (returns Promise<rows[]>) ──
+async function lbFetch(){
+  if(!JSONBIN_ID)return localLoad();
+  try{
+    const r=await fetch(`${JSONBIN_BASE}/${JSONBIN_ID}/latest`,{headers:{'X-Master-Key':JSONBIN_KEY},signal:AbortSignal.timeout(5000)});
+    if(!r.ok)throw 0;
+    const j=await r.json();
+    return Array.isArray(j.record?.scores)?j.record.scores:[];
+  }catch{return localLoad();}
+}
+
+// ── submit a score (returns Promise<top10[]>) ──
+async function lbSubmit(name,score){
+  localSetPB(name,score); // always save PB locally
+  if(!JSONBIN_ID){
+    // local-only fallback
+    const rows=mergeScore(localLoad(),name,score);
+    localSave(rows);return rows.slice(0,10);
+  }
+  try{
+    // read → merge → write
+    const existing=await lbFetch();
+    const updated=mergeScore(existing,name,score);
+    await fetch(`${JSONBIN_BASE}/${JSONBIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},body:JSON.stringify({scores:updated}),signal:AbortSignal.timeout(6000)});
+    localSave(updated); // cache locally too
+    return updated.slice(0,10);
+  }catch{
+    // network failed — save locally and return local top10
+    const rows=mergeScore(localLoad(),name,score);localSave(rows);return rows.slice(0,10);
+  }
+}
+
+// ── get top N (returns Promise<rows[]>) ──
+async function lbGetTop(n){
+  const rows=await lbFetch();
+  return rows.sort((a,b)=>b.score-a.score).slice(0,n||10);
+}
 
 /* ══════ CURSOR ══════ */
 const cur=document.getElementById('CUR'),ring=document.getElementById('CURR');
@@ -764,7 +825,7 @@ function countUp(el,target,suffix,dur){
 }
 const statsEl=document.querySelector('.stats');let counted=false;
 if(statsEl){
-  const io=new IntersectionObserver(e=>{if(e[0].isIntersecting&&!counted){counted=true;countUp(document.getElementById('CNT1'),999,'+',1800);countUp(document.getElementById('CNT2'),lbLoad().length||0,'',1200);countUp(document.getElementById('CNT3'),100,'%',1400);}},{threshold:.5});
+  const io=new IntersectionObserver(async e=>{if(e[0].isIntersecting&&!counted){counted=true;countUp(document.getElementById('CNT1'),999,'+',1800);const rows=await lbGetTop(50);countUp(document.getElementById('CNT2'),rows.length||0,'',1200);countUp(document.getElementById('CNT3'),100,'%',1400);}},{threshold:.5});
   io.observe(statsEl);
 }
 
@@ -915,15 +976,34 @@ const GAME_TIME=10;
 let gameState='idle',score=0,combo=0,comboTimer=null,recentClicks=[];
 const clickerBtn=document.getElementById('CLICKER_BTN'),gScore=document.getElementById('G_SCORE'),gTime=document.getElementById('G_TIME'),gMulti=document.getElementById('G_MULTI'),gBest=document.getElementById('G_BEST'),gBar=document.getElementById('G_BAR'),gCombo=document.getElementById('G_COMBO'),gCPS=document.getElementById('G_CPS'),gLabel=document.getElementById('CLICKER_LABEL');
 
-function resetGame(){
-  gameState='idle';score=0;combo=0;recentClicks=[];clearTimeout(comboTimer);
-  gScore.textContent='0';gTime.textContent=GAME_TIME;gBar.style.width='100%';gBar.className='timer-bar';gCombo.textContent='';gLabel.textContent='TAP TO START!';gMulti.textContent='x1';gCPS.textContent='Get ready…';
+function showGameUI(){
+  // show all game-play elements, hide results
   document.getElementById('RESULT_BOX').style.display='none';
-  clickerBtn.style.display='flex';
   document.querySelector('.clicker-scores').style.display='flex';
   document.querySelector('.timer-bar-wrap').style.display='block';
   document.querySelector('.clicker-area').style.display='flex';
-  const pb=lbGetPersonalBest(PLAYER);gBest.textContent=pb!==null?pb:'—';gBest.style.color=pb?'var(--y)':'rgba(255,255,255,.2)';
+  clickerBtn.style.display='flex';
+}
+
+function hideGameUI(){
+  // hide play elements when showing results
+  document.querySelector('.clicker-area').style.display='none';
+  document.querySelector('.timer-bar-wrap').style.display='none';
+}
+
+function resetGame(){
+  gameState='idle';score=0;combo=0;recentClicks=[];clearTimeout(comboTimer);
+  gScore.textContent='0';
+  gTime.textContent=GAME_TIME;
+  gBar.style.width='100%';gBar.className='timer-bar';
+  gCombo.textContent='';
+  gLabel.textContent='TAP TO START!';
+  gMulti.textContent='x1';
+  gCPS.textContent='Get ready…';
+  showGameUI();
+  const pb=lbGetPersonalBest(PLAYER);
+  gBest.textContent=pb!==null?pb:'—';
+  gBest.style.color=pb?'var(--y)':'rgba(255,255,255,.2)';
 }
 
 function startGame(){
@@ -939,14 +1019,33 @@ function startGame(){
   })(t0);
 }
 
-function endGame(){
+async function endGame(){
   gameState='done';gLabel.textContent='DONE!';gCombo.textContent='';gCPS.textContent='';
-  const rows=lbSubmit(PLAYER,score),rank=rows.findIndex(r=>r.name===PLAYER)+1;
+  hideGameUI();
+
+  // show results immediately with a saving indicator
   document.getElementById('R_EMOJI').textContent=score>=200?'🏆':score>=100?'🔥':'🌶️';
   document.getElementById('R_SCORE').textContent=score;
-  const rankEl=document.getElementById('R_RANK');rankEl.textContent=rank>0?`#${rank} on the leaderboard${rank===1?' 🏆 YOU\'RE #1!':rank<=3?' 🔥 TOP 3!':''}` :'Score saved!';
-  const pb=lbGetPersonalBest(PLAYER);gBest.textContent=pb!==null?pb:score;gBest.style.color='var(--y)';
-  document.getElementById('RESULT_BOX').style.display='block';confettiBurst();renderLeaderboard();
+  document.getElementById('R_RANK').textContent='Saving score…';
+  document.getElementById('RESULT_BOX').style.display='block';
+  confettiBurst();
+
+  // update personal best display
+  const pb=lbGetPersonalBest(PLAYER);
+  gBest.textContent=pb!==null?Math.max(pb,score):score;
+  gBest.style.color='var(--y)';
+
+  // submit to global leaderboard (async — updates rank when done)
+  try{
+    const rows=await lbSubmit(PLAYER,score);
+    const rank=rows.findIndex(r=>r.name===PLAYER.trim().toUpperCase())+1;
+    document.getElementById('R_RANK').textContent=rank>0
+      ?`#${rank} on the leaderboard${rank===1?' 🏆 YOU\'RE #1!':rank<=3?' 🔥 TOP 3!':''}`
+      :'Score saved!';
+    renderLeaderboard();
+  }catch{
+    document.getElementById('R_RANK').textContent='Score saved locally!';
+  }
 }
 
 function handleClick(e){
@@ -975,16 +1074,20 @@ clickerBtn.addEventListener('touchstart',e=>{e.preventDefault();handleClick(e.to
 document.getElementById('R_AGAIN').addEventListener('click',()=>resetGame());
 
 /* ══════ LEADERBOARD ══════ */
-function renderLeaderboard(){
+async function renderLeaderboard(){
   const list=document.getElementById('LB_LIST'),countEl=document.getElementById('LB_COUNT');if(!list)return;
-  const rows=lbGetTop(10),all=lbLoad();
+  // show loading state while fetching
+  list.innerHTML='<div style="padding:20px;text-align:center;color:rgba(255,255,255,.2);letter-spacing:3px;font-size:.75rem;font-weight:700">Loading scores…</div>';
+  const rows=await lbGetTop(10);
   if(!rows.length){list.innerHTML='<div class="lb-empty">No scores yet!<br><br>Play Hot Sauce Clicker above to be first on the board 🌶️</div>';if(countEl)countEl.textContent='';return;}
   const rankLabels=['gold','silver','bronze'];
+  const currentPlayer=PLAYER.trim().toUpperCase();
   list.innerHTML=rows.map((r,i)=>{
-    const isYou=PLAYER&&r.name===PLAYER,crown=i===0?' 🏆':i===1?' 🥈':i===2?' 🥉':'',date=r.ts?new Date(r.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
+    const isYou=currentPlayer&&r.name===currentPlayer,crown=i===0?' 🏆':i===1?' 🥈':i===2?' 🥉':'',date=r.ts?new Date(r.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'';
     return`<div class="lb-row${isYou?' lb-you':''}"><div class="lb-rank ${rankLabels[i]||''}">#${i+1}</div><div class="lb-name">${r.name}${crown}</div><div class="lb-meta"><span class="lb-score">${r.score}</span>${date?`<span class="lb-date">${date}</span>`:''}</div></div>`;
   }).join('');
-  if(countEl)countEl.textContent=all.length+' total player'+(all.length!==1?'s':'')+' on this device';
+  const isGlobal=JSONBIN_ID?'global':'device';
+  if(countEl)countEl.textContent=rows.length+' scores on '+isGlobal+' leaderboard'+(JSONBIN_ID?'':' — add JSONbin ID for global scores');
 }
 renderLeaderboard();
 
