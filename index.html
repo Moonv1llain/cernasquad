@@ -438,11 +438,122 @@ footer{padding:68px 48px 32px;text-align:center;background:var(--bg);color:var(-
 .sm-start p{color:rgba(255,255,255,.3);font-size:.88rem;margin-bottom:20px;line-height:1.7}
 .sm-ingredients-preview{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:24px}
 .sm-ing-chip{padding:4px 12px;border-radius:100px;font-size:.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:1px solid}
+
+/* ══════ TOAST NOTIFICATIONS ══════ */
+#toast-container{position:fixed;bottom:90px;right:20px;z-index:9000;display:flex;flex-direction:column-reverse;gap:10px;pointer-events:none}
+@media(max-width:700px){#toast-container{bottom:110px;right:10px;left:10px}}
+.toast{background:rgba(13,13,26,.95);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(20px);pointer-events:all;max-width:320px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateX(120%);opacity:0;transition:transform .4s cubic-bezier(.16,1,.3,1),opacity .4s}
+.toast.show{transform:none;opacity:1}
+.toast.hide{transform:translateX(120%);opacity:0}
+@media(max-width:700px){.toast{max-width:100%}}
+.toast-icon{font-size:1.6rem;flex-shrink:0}
+.toast-body{flex:1;min-width:0}
+.toast-title{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#fff;line-height:1.1}
+.toast-msg{font-size:.7rem;color:rgba(255,255,255,.4);letter-spacing:1px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toast-bar{position:absolute;bottom:0;left:0;height:2px;border-radius:0 0 8px 8px;animation:toastBar linear forwards}
+@keyframes toastBar{from{width:100%}to{width:0}}
+.toast-close{background:none;border:none;color:rgba(255,255,255,.2);cursor:pointer;font-size:.9rem;padding:2px 4px;flex-shrink:0}
+.toast-close:hover{color:#fff}
+.toast.t-gold .toast-bar{background:var(--y);box-shadow:0 0 8px var(--y)}
+.toast.t-teal .toast-bar{background:var(--t);box-shadow:0 0 8px var(--t)}
+.toast.t-red  .toast-bar{background:var(--r);box-shadow:0 0 8px var(--r)}
+.toast.t-purple .toast-bar{background:var(--p);box-shadow:0 0 8px var(--p)}
+.toast.t-gold{border-color:rgba(255,214,10,.25)}
+.toast.t-teal{border-color:rgba(0,255,200,.25)}
+.toast.t-red{border-color:rgba(255,45,85,.25)}
+.toast.t-purple{border-color:rgba(191,90,242,.25)}
+
+/* ══════ STATS DASHBOARD ══════ */
+#stats-dash{background:var(--bg2);border-top:1px solid var(--border)}
+#stats-dash .sec{display:flex;flex-direction:column;align-items:flex-start}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%;margin-bottom:28px}
+@media(max-width:700px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
+.dash-card{background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:20px 16px;text-align:center;backdrop-filter:blur(10px);position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.dash-card:hover{border-color:rgba(255,255,255,.15);box-shadow:0 0 20px rgba(0,0,0,.3)}
+.dash-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.dash-card.dc-t::before{background:linear-gradient(to right,var(--t),transparent)}
+.dash-card.dc-r::before{background:linear-gradient(to right,var(--r),transparent)}
+.dash-card.dc-y::before{background:linear-gradient(to right,var(--y),transparent)}
+.dash-card.dc-p::before{background:linear-gradient(to right,var(--p),transparent)}
+.dash-card.dc-g::before{background:linear-gradient(to right,var(--g),transparent)}
+.dash-card.dc-o::before{background:linear-gradient(to right,var(--o),transparent)}
+.dash-val{font-family:'Bebas Neue',sans-serif;font-size:2.6rem;line-height:1;display:block}
+.dash-lbl{font-size:.48rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.25);font-weight:700;font-family:'Space Mono',monospace;margin-top:4px;display:block}
+.dash-sub{font-size:.62rem;color:rgba(255,255,255,.2);margin-top:3px;display:block}
+.dash-bar-wrap{width:100%;margin-bottom:28px}
+.dash-bar-wrap h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:rgba(255,255,255,.4);margin-bottom:14px}
+.dash-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.dash-bar-name{font-size:.7rem;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.5);width:100px;text-align:right;flex-shrink:0;font-family:'Space Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dash-bar-track{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.dash-bar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.16,1,.3,1)}
+.dash-bar-score{font-family:'Bebas Neue',sans-serif;font-size:1rem;width:44px;flex-shrink:0}
+.dash-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+@media(max-width:600px){.dash-two{grid-template-columns:1fr}}
+.dash-ing-grid{display:flex;flex-wrap:wrap;gap:6px}
+.dash-ing-pill{padding:4px 10px;border-radius:100px;font-size:.58rem;font-weight:700;letter-spacing:2px;border:1px solid;display:flex;align-items:center;gap:5px}
+.dash-activity{display:flex;align-items:flex-end;gap:3px;height:50px}
+.dash-act-bar{flex:1;border-radius:2px 2px 0 0;min-height:4px;transition:height .8s cubic-bezier(.16,1,.3,1)}
+
+/* ══════ SQUAD VOTE ══════ */
+#squad-vote{background:var(--bg);border-top:1px solid var(--border)}
+#squad-vote .sec{display:flex;flex-direction:column;align-items:center;text-align:center}
+#squad-vote .stitle .hl{color:var(--p)}
+#squad-vote .stitle .hl::after{background:linear-gradient(to right,var(--p),transparent);box-shadow:0 0 12px var(--p)}
+.vote-card{width:100%;max-width:560px;background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:32px 28px;backdrop-filter:blur(20px)}
+.vote-q{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:2px;color:#fff;margin-bottom:8px;line-height:1.15}
+.vote-tag{font-size:.52rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.2);font-weight:700;font-family:'Space Mono',monospace;margin-bottom:28px;display:block}
+.vote-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+@media(max-width:480px){.vote-options{grid-template-columns:1fr}}
+.vote-btn{background:var(--glass);border:1px solid var(--border);border-radius:8px;padding:20px 16px;cursor:pointer;transition:all .2s;text-align:center;position:relative;overflow:hidden}
+.vote-btn:hover{border-color:rgba(191,90,242,.4);transform:translateY(-2px)}
+.vote-btn.voted-this{border-color:var(--p);box-shadow:0 0 20px rgba(191,90,242,.2)}
+.vote-btn.voted-other{opacity:.5}
+.vote-btn-fill{position:absolute;inset:0;opacity:.08;transition:width .8s cubic-bezier(.16,1,.3,1);width:0}
+.vote-btn-emoji{font-size:2.4rem;display:block;margin-bottom:6px}
+.vote-btn-label{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:#fff;display:block}
+.vote-btn-pct{font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--p);display:block;margin-top:4px;opacity:0;transition:opacity .4s}
+.vote-btn.voted .vote-btn-pct{opacity:1}
+.vote-bar{display:flex;gap:0;border-radius:4px;overflow:hidden;height:6px;margin-bottom:16px}
+.vote-bar-a{background:var(--p);transition:width .8s cubic-bezier(.16,1,.3,1)}
+.vote-bar-b{background:var(--t);transition:width .8s cubic-bezier(.16,1,.3,1);flex:1}
+.vote-total{font-size:.62rem;color:rgba(255,255,255,.2);letter-spacing:2px;font-family:'Space Mono',monospace}
+.vote-next{display:flex;align-items:center;gap:8px;margin-top:20px;justify-content:center}
+.vote-next-lbl{font-size:.58rem;letter-spacing:2px;color:rgba(255,255,255,.2);font-family:'Space Mono',monospace}
+.vote-countdown{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--p)}
+.vote-history{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+.vote-hist-pill{padding:4px 12px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:100px;font-size:.56rem;letter-spacing:2px;color:rgba(255,255,255,.25);font-family:'Space Mono',monospace}
+
+/* ══════ ACHIEVEMENTS ══════ */
+#achievements{background:var(--bg2);border-top:1px solid var(--border)}
+#achievements .sec{display:flex;flex-direction:column;align-items:flex-start}
+#achievements .stitle .hl{color:var(--y)}
+#achievements .stitle .hl::after{background:linear-gradient(to right,var(--y),transparent);box-shadow:0 0 12px var(--y)}
+.ach-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;width:100%}
+@media(max-width:700px){.ach-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.ach-grid{grid-template-columns:repeat(2,1fr)}}
+.ach-card{background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:20px 14px;text-align:center;position:relative;overflow:hidden;transition:all .3s}
+.ach-card.unlocked{border-color:rgba(255,214,10,.3);box-shadow:0 0 20px rgba(255,214,10,.08)}
+.ach-card.locked{opacity:.4;filter:grayscale(.8)}
+.ach-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);pointer-events:none}
+.ach-icon{font-size:2.4rem;display:block;margin-bottom:8px;filter:drop-shadow(0 0 10px rgba(255,214,10,.3))}
+.ach-card.locked .ach-icon{filter:grayscale(1);opacity:.3}
+.ach-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:#fff;display:block;margin-bottom:4px}
+.ach-desc{font-size:.58rem;color:rgba(255,255,255,.3);letter-spacing:1px;line-height:1.5;font-family:'Space Mono',monospace}
+.ach-card.unlocked .ach-desc{color:rgba(255,255,255,.5)}
+.ach-badge{position:absolute;top:8px;right:8px;background:var(--y);color:#000;font-size:.45rem;font-weight:700;letter-spacing:1px;padding:2px 6px;border-radius:100px}
+.ach-prog{width:100%;height:3px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:10px;overflow:hidden}
+.ach-prog-fill{height:100%;background:var(--y);border-radius:3px;box-shadow:0 0 6px var(--y);transition:width .6s cubic-bezier(.16,1,.3,1)}
+.ach-card.locked .ach-prog-fill{background:rgba(255,255,255,.1);box-shadow:none}
+.ach-unlock-date{font-size:.5rem;color:rgba(255,214,10,.4);font-family:'Space Mono',monospace;margin-top:5px;display:block}
+.ach-summary{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.ach-sum-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--y)}
+.ach-sum-lbl{font-size:.55rem;letter-spacing:3px;color:rgba(255,255,255,.2);font-family:'Space Mono',monospace}
 </style>
 </head>
 <body>
 
 <canvas id="trailCv"></canvas>
+<div id="toast-container"></div>
 <div id="CUR"></div><div id="CURR"></div>
 <div class="vflash" id="VF"></div>
 <canvas id="confCv"></canvas>
@@ -455,6 +566,9 @@ footer{padding:68px 48px 32px;text-align:center;background:var(--bg);color:var(-
   <a href="#game" onclick="closeMob()">🌶️ Clicker</a>
   <a href="#smoothie" onclick="closeMob()">🥤 Smoothie</a>
   <a href="#leaderboard" onclick="closeMob()">🏆 Leaderboard</a>
+  <a href="#stats-dash" onclick="closeMob()">📊 Stats</a>
+  <a href="#squad-vote" onclick="closeMob()">🗳️ Vote</a>
+  <a href="#achievements" onclick="closeMob()">🏅 Badges</a>
   <a href="#fans" onclick="closeMob()">⭐ Fans</a>
   <div class="mob-btns">
     <a href="https://youtube.com/@cernasquad" target="_blank" class="btn btn-t" style="font-size:.7rem">▶ YouTube</a>
@@ -480,6 +594,9 @@ footer{padding:68px 48px 32px;text-align:center;background:var(--bg);color:var(-
     <a href="#game">🌶️ Clicker</a>
     <a href="#smoothie">🥤 Smoothie</a>
     <a href="#leaderboard">Leaderboard</a>
+    <a href="#stats-dash">Stats</a>
+    <a href="#squad-vote">Vote</a>
+    <a href="#achievements">Badges</a>
     <a href="#fans">Fans</a>
   </div>
   <div class="n-btns">
@@ -759,6 +876,93 @@ footer{padding:68px 48px 32px;text-align:center;background:var(--bg);color:var(-
     <div class="lb-live sr"><span class="dot"></span>Live · Updates instantly</div>
     <div class="lb-list" id="LB_LIST"><div style="padding:20px;text-align:center;color:rgba(255,255,255,.2);letter-spacing:3px;font-size:.8rem;font-weight:700">Loading scores…</div></div>
     <div class="lb-count" id="LB_COUNT"></div>
+  </div>
+</section>
+<div class="wdiv"></div>
+
+
+<!-- ═══════ STATS DASHBOARD ═══════ -->
+<section id="stats-dash">
+  <div class="sec">
+    <div class="eye sr">📊 Live Data</div>
+    <div class="stitle sr">SQUAD<br><span class="hl" style="color:var(--t)">STATS DASHBOARD</span></div>
+    <p class="ssub sr">Real numbers. Both games. Updated every time someone plays.</p>
+
+    <div class="dash-grid sr" id="DASH_GRID">
+      <div class="dash-card dc-r sr"><span class="dash-val" id="DS_GAMES" style="color:var(--r)">—</span><span class="dash-lbl">Total Games</span><span class="dash-sub">both games combined</span></div>
+      <div class="dash-card dc-t sr"><span class="dash-val" id="DS_PLAYERS" style="color:var(--t)">—</span><span class="dash-lbl">Total Players</span><span class="dash-sub">unique names on boards</span></div>
+      <div class="dash-card dc-y sr"><span class="dash-val" id="DS_TOP" style="color:var(--y)">—</span><span class="dash-lbl">Highest Score</span><span class="dash-sub" id="DS_TOP_WHO">clicker all time</span></div>
+      <div class="dash-card dc-p sr"><span class="dash-val" id="DS_AVG" style="color:var(--p)">—</span><span class="dash-lbl">Avg Score</span><span class="dash-sub">across all players</span></div>
+      <div class="dash-card dc-g sr"><span class="dash-val" id="DS_BEST_ING" style="color:var(--g);font-size:2rem">—</span><span class="dash-lbl">Fave Ingredient</span><span class="dash-sub">most caught in smoothie</span></div>
+      <div class="dash-card dc-o sr"><span class="dash-val" id="DS_STREAK" style="color:var(--o)">—</span><span class="dash-lbl">Dare Spins</span><span class="dash-sub">wheel spins today</span></div>
+      <div class="dash-card dc-t sr" style="grid-column:span 2"><span class="dash-val" id="DS_LEADER" style="color:var(--t);font-size:1.8rem">—</span><span class="dash-lbl">Current Champion</span><span class="dash-sub" id="DS_LEADER_GAME">loading…</span></div>
+    </div>
+
+    <div class="dash-two sr" style="width:100%">
+      <div class="dash-card dc-r" style="text-align:left">
+        <div class="dash-bar-wrap" style="margin-bottom:0">
+          <h3>🌶️ TOP CLICKERS</h3>
+          <div id="DASH_CLICKER_BARS"></div>
+        </div>
+      </div>
+      <div class="dash-card dc-t" style="text-align:left">
+        <div class="dash-bar-wrap" style="margin-bottom:0">
+          <h3>🥤 TOP BLENDERS</h3>
+          <div id="DASH_SMOOTHIE_BARS"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="wdiv"></div>
+
+<!-- ═══════ SQUAD VOTE ═══════ -->
+<section id="squad-vote">
+  <div class="sec">
+    <div class="eye sr">🗳️ Community</div>
+    <div class="stitle sr">SQUAD<br><span class="hl">VOTE</span></div>
+    <p class="ssub sr">New question every week. Your vote counts. Results are live.</p>
+
+    <div class="vote-card sr">
+      <div class="vote-q" id="VOTE_Q">Loading question…</div>
+      <span class="vote-tag" id="VOTE_TAG">SQUAD VOTE</span>
+      <div class="vote-options">
+        <button class="vote-btn" id="VOTE_A" onclick="castVote('a')">
+          <div class="vote-btn-fill" id="VOTE_FILL_A" style="background:var(--p)"></div>
+          <span class="vote-btn-emoji" id="VOTE_EMO_A">🤔</span>
+          <span class="vote-btn-label" id="VOTE_LBL_A">Option A</span>
+          <span class="vote-btn-pct" id="VOTE_PCT_A">0%</span>
+        </button>
+        <button class="vote-btn" id="VOTE_B" onclick="castVote('b')">
+          <div class="vote-btn-fill" id="VOTE_FILL_B" style="background:var(--t)"></div>
+          <span class="vote-btn-emoji" id="VOTE_EMO_B">🤔</span>
+          <span class="vote-btn-label" id="VOTE_LBL_B">Option B</span>
+          <span class="vote-btn-pct" id="VOTE_PCT_B">0%</span>
+        </button>
+      </div>
+      <div class="vote-bar"><div class="vote-bar-a" id="VOTE_BAR_A" style="width:50%"></div><div class="vote-bar-b" id="VOTE_BAR_B"></div></div>
+      <div class="vote-total" id="VOTE_TOTAL">Loading votes…</div>
+      <div class="vote-next">
+        <span class="vote-next-lbl">NEXT QUESTION IN</span>
+        <span class="vote-countdown" id="VOTE_CD">—</span>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="wdiv"></div>
+
+<!-- ═══════ ACHIEVEMENTS ═══════ -->
+<section id="achievements">
+  <div class="sec">
+    <div class="eye sr">🏅 Unlock Them All</div>
+    <div class="stitle sr">ACHIEVEMENT<br><span class="hl">BADGES</span></div>
+    <p class="ssub sr">Play games, spin the wheel, keep coming back. Badges are saved to your device.</p>
+    <div class="ach-summary sr">
+      <div><div class="ach-sum-num" id="ACH_COUNT">0</div><div class="ach-sum-lbl">Unlocked</div></div>
+      <div style="color:rgba(255,255,255,.1);font-size:2rem;align-self:center">/</div>
+      <div><div class="ach-sum-num" style="color:rgba(255,255,255,.2)" id="ACH_TOTAL">0</div><div class="ach-sum-lbl">Total</div></div>
+    </div>
+    <div class="ach-grid sr" id="ACH_GRID"></div>
   </div>
 </section>
 <div class="wdiv"></div>
@@ -1046,7 +1250,7 @@ function doSpin(){
     wRot=dest;wDraw(wRot);wLast=wWinner(wRot);
     const dare=DARES[wLast],sc=new Scramble(dtxt);
     dtxt.style.color='rgba(255,255,255,.75)';sc.run(dare.f,()=>{document.getElementById('DARE_CTR').style.display='block';document.getElementById('DARE_NUM').textContent=wLast+1;});
-    document.getElementById('DBOX').classList.add('lit');wSpin=false;hub.classList.remove('sp');hub.textContent='SPIN';wIdleRunning=false;wIdle();confettiBurst();
+    document.getElementById('DBOX').classList.add('lit');wSpin=false;hub.classList.remove('sp');hub.textContent='SPIN';wIdleRunning=false;wIdle();confettiBurst();if(typeof trackDareSpin!=='undefined')trackDareSpin();
   })(t0);
 }
 hub.addEventListener('click',doSpin);wCv.addEventListener('click',doSpin);wCv.addEventListener('touchend',e=>{e.preventDefault();doSpin();},{passive:false});
@@ -1151,6 +1355,10 @@ async function gEnd(){
   document.getElementById('R_RANK').textContent='Saving…';
   document.getElementById('RESULT_BOX').style.display='block';
   confettiBurst();
+  checkAchievement('first_click');
+  if(gScore_>=100)checkAchievement('centurion');
+  if(gScore_>=200)checkAchievement('legendary_clk');
+  if(typeof refreshDash!=='undefined')refreshDash();
   const pb=lbGetPersonalBest(PLAYER);gBest.textContent=Math.max(pb||0,gScore_);gBest.style.color='var(--y)';
   try{
     const rows=await lbSubmit(PLAYER,gScore_);
@@ -1164,6 +1372,7 @@ function gClick(e){
   if(gState==='idle')gStart();
   gCombo_++;clearTimeout(gComboTimer);gComboTimer=setTimeout(()=>{gCombo_=0;gCombo.textContent='';},400);
   const mult=gCombo_>=15?5:gCombo_>=10?4:gCombo_>=6?3:gCombo_>=3?2:1;
+  if(mult>=5)checkAchievement('combo_king');
   gScore_+=mult;gScore.textContent=gScore_;gScore.classList.add('pop');setTimeout(()=>gScore.classList.remove('pop'),200);gMulti.textContent='x'+mult;
   const rect=clickerBtn.getBoundingClientRect();
   const fx=e.clientX||rect.left+rect.width/2,fy=e.clientY||rect.top+40;
@@ -1375,7 +1584,12 @@ gRenderLB();
     document.getElementById('SM_R_RANK').textContent='Saving blend…';
     smResult.style.display='block';
     const pb=smGetPB(SM_PLAYER);smBestEl.textContent=Math.max(pb||0,smScore);smBestEl.style.color='var(--y)';
-    confettiBurst();smRenderLB();
+    confettiBurst();
+    checkAchievement('first_blend');
+    if(smScore>=200)checkAchievement('master_blend');
+    if(smCaught>=15)checkAchievement('clean_blend');
+    if(typeof refreshDash!=='undefined')refreshDash();
+    smRenderLB();
     try{
       const rows=await smSubmit(SM_PLAYER,smScore);
       const rank=rows.findIndex(r=>r.name===SM_PLAYER.trim().toUpperCase())+1;
@@ -1410,6 +1624,340 @@ gRenderLB();
   FANS.forEach((f,i)=>{const a=document.createElement('a');a.className='fc';a.href=f.t;a.target='_blank';a.rel='noopener noreferrer';a.dataset.i=i;a.innerHTML=`<div class="fc-bar"></div><div class="fc-body" style="background:${f.c}"><div class="frn">#${i+1}</div><div class="fav">${f.i}</div><div class="fname">${f.n}</div><div class="fhandle">${f.h}</div><div class="fbadges">${f.b.map(b=>`<span class="badge ${b[1]}">${b[0]}</span>`).join('')}</div><div class="fc-arrow">↗</div></div>`;fg.appendChild(a);});
   const fio=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('vis'),(+e.target.dataset.i||0)*80);fio.unobserve(e.target);}});},{threshold:.1});
   document.querySelectorAll('.fc').forEach(c=>fio.observe(c));
+})();
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   🔔  LIVE TOAST NOTIFICATIONS
+══════════════════════════════════════════════════════════════════════ */
+;(()=>{
+  const container = document.getElementById('toast-container');
+  let toastQueue = [], toastActive = false;
+
+  window.showToast = function(icon, title, msg, type='t', dur=5000){
+    toastQueue.push({icon,title,msg,type,dur});
+    if(!toastActive) drainQueue();
+  };
+
+  function drainQueue(){
+    if(!toastQueue.length){toastActive=false;return;}
+    toastActive=true;
+    const {icon,title,msg,type,dur} = toastQueue.shift();
+    const t = document.createElement('div');
+    t.className = `toast t-${type}`;
+    t.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-body"><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div><button class="toast-close" onclick="this.closest('.toast').remove();drainQueue()">✕</button><div class="toast-bar" style="animation-duration:${dur}ms"></div>`;
+    container.appendChild(t);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>t.classList.add('show')));
+    setTimeout(()=>{t.classList.add('hide');setTimeout(()=>{t.remove();drainQueue();},420);}, dur);
+  }
+  window.drainQueue = drainQueue;
+
+  // ── Poll leaderboards every 30s for new top scores ──
+  let lastClickerTop = null, lastSmoothieTop = null;
+
+  async function pollLeaderboards(){
+    try{
+      const crow = await lbGetTop(1);
+      if(crow.length){
+        const top = crow[0];
+        if(lastClickerTop !== null && top.name !== lastClickerTop.name){
+          showToast('🌶️', top.name+' TOPPED THE BOARD!', 'Hot Sauce Clicker · '+top.score+' pts', 'red', 6000);
+        } else if(lastClickerTop !== null && top.score > lastClickerTop.score){
+          showToast('🏆', top.name+' SET A NEW RECORD!', 'Hot Sauce Clicker · '+top.score+' pts', 'gold', 6000);
+        }
+        lastClickerTop = top;
+      }
+    }catch{}
+    try{
+      const srow = await smGetTop(1);
+      if(srow.length){
+        const top = srow[0];
+        if(lastSmoothieTop !== null && top.name !== lastSmoothieTop.name){
+          showToast('🥤', top.name+' TOPPED THE BLEND BOARD!', 'Mystery Smoothie · '+top.score+' pts', 'teal', 6000);
+        } else if(lastSmoothieTop !== null && top.score > lastSmoothieTop.score){
+          showToast('🏆', top.name+' BLENDED A NEW RECORD!', 'Mystery Smoothie · '+top.score+' pts', 'gold', 6000);
+        }
+        lastSmoothieTop = top;
+      }
+    }catch{}
+  }
+
+  // seed initial values silently, then start polling
+  setTimeout(async ()=>{
+    try{const r=await lbGetTop(1);if(r.length)lastClickerTop=r[0];}catch{}
+    try{const r=await smGetTop(1);if(r.length)lastSmoothieTop=r[0];}catch{}
+    setInterval(pollLeaderboards, 30000);
+  }, 3000);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   📊  STATS DASHBOARD
+══════════════════════════════════════════════════════════════════════ */
+;(()=>{
+  const BAR_COLS_C = ['#FF2D55','#FF6B87','#FF9580','#FFB74D','#FFD60A'];
+  const BAR_COLS_S = ['#00FFC8','#00EDCA','#30D158','#5FE88A','#00FF88'];
+
+  function makeBars(containerId, rows, cols){
+    const el = document.getElementById(containerId); if(!el)return;
+    if(!rows.length){el.innerHTML='<div style="color:rgba(255,255,255,.15);font-size:.7rem;padding:8px 0">No scores yet</div>';return;}
+    const max = rows[0].score || 1;
+    el.innerHTML = rows.slice(0,5).map((r,i)=>`
+      <div class="dash-bar-row">
+        <div class="dash-bar-name">${r.name}</div>
+        <div class="dash-bar-track"><div class="dash-bar-fill" style="width:0;background:${cols[i]};box-shadow:0 0 8px ${cols[i]}40" data-w="${(r.score/max*100).toFixed(1)}"></div></div>
+        <div class="dash-bar-score" style="color:${cols[i]}">${r.score}</div>
+      </div>`).join('');
+    // animate in
+    setTimeout(()=>{el.querySelectorAll('.dash-bar-fill').forEach(b=>b.style.width=b.dataset.w+'%');},100);
+  }
+
+  async function loadDash(){
+    try{
+      const [cRows, sRows] = await Promise.all([lbGetTop(50), smGetTop(50)]);
+      const allPlayers = new Set([...cRows.map(r=>r.name),...sRows.map(r=>r.name)]);
+      const allScoresC = cRows.map(r=>r.score);
+      const allScoresS = sRows.map(r=>r.score);
+      const totalGames = cRows.length + sRows.length;
+      const topC = cRows[0], topS = sRows[0];
+      const topAll = (!topC && !topS) ? null : (!topC ? topS : (!topS ? topC : (topC.score>=topS.score?topC:topS)));
+      const avgC = allScoresC.length ? ~~(allScoresC.reduce((a,b)=>a+b,0)/allScoresC.length) : 0;
+      const avgS = allScoresS.length ? ~~(allScoresS.reduce((a,b)=>a+b,0)/allScoresS.length) : 0;
+      const avgAll = (allScoresC.length+allScoresS.length) ? ~~((allScoresC.concat(allScoresS).reduce((a,b)=>a+b,0))/(allScoresC.length+allScoresS.length)) : 0;
+
+      // fave ingredient from localStorage smoothie cache
+      const smCache = (() => {try{return JSON.parse(localStorage.getItem('cernasquad_smoothie_lb_v1')||'[]')}catch{return[]}})();
+      const ingCount = {}; // track from local only (we can't store per-catch globally easily)
+      const GOOD_EMOJIS = {'🍓':1,'🍌':1,'🫐':1,'🍍':1,'🥭':1,'🍇':1,'🥝':1,'🍑':1};
+
+      document.getElementById('DS_GAMES').textContent = totalGames || '—';
+      document.getElementById('DS_PLAYERS').textContent = allPlayers.size || '—';
+      if(topAll){
+        document.getElementById('DS_TOP').textContent = topAll.score;
+        document.getElementById('DS_TOP_WHO').textContent = topAll.name + (topC && topAll.name===topC.name?' · clicker':' · smoothie');
+      }
+      document.getElementById('DS_AVG').textContent = avgAll || '—';
+      document.getElementById('DS_BEST_ING').textContent = '🍓'; // default - no per-catch global storage
+      document.getElementById('DS_STREAK').textContent = localStorage.getItem('cs_dare_spins')||'0';
+
+      // champion
+      if(topAll){
+        document.getElementById('DS_LEADER').textContent = topAll.name;
+        document.getElementById('DS_LEADER_GAME').textContent = topAll.score+' pts · '+(topC&&topAll.name===topC.name?'Hot Sauce Clicker':'Smoothie Catcher');
+      }
+
+      makeBars('DASH_CLICKER_BARS', cRows.slice(0,5), BAR_COLS_C);
+      makeBars('DASH_SMOOTHIE_BARS', sRows.slice(0,5), BAR_COLS_S);
+    }catch(e){console.warn('Dashboard error:',e);}
+  }
+
+  // load when section scrolls into view
+  const dashEl = document.getElementById('stats-dash');
+  if(dashEl){
+    const dio = new IntersectionObserver(e=>{if(e[0].isIntersecting){loadDash();dio.disconnect();}},{threshold:.1});
+    dio.observe(dashEl);
+  }
+
+  // expose so games can refresh after a score save
+  window.refreshDash = loadDash;
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   🗳️  SQUAD VOTE
+   SETUP: Create a JSONbin with content:
+   {"week":1,"q":"Which dare is worse?","tag":"DARE DEBATE","a":{"e":"🧅","l":"ONION BITE","v":0},"b":{"e":"🍋","l":"LEMON BITE","v":0}}
+══════════════════════════════════════════════════════════════════════ */
+;(()=>{
+/* ══════════════════════════════════════════════════════════════════════
+   🗳️  SQUAD VOTE — JSONbin setup
+   Create a bin at jsonbin.io with this content:
+   {"week":1,"q":"Which dare is worse?","tag":"DARE DEBATE · WEEK 1","a":{"e":"🧅","l":"Onion Bite","v":0},"b":{"e":"🍋","l":"Lemon Bite","v":0}}
+════════════════════════════════════════════════════════════════════════ */
+const VOTE_BIN_ID  = '';  // ← Squad Vote bin ID
+const VOTE_BIN_KEY = CLICKER_BIN_KEY; // same Master Key
+
+const VOTE_LOCAL = 'cernasquad_vote_v1'; // {week, choice}
+
+  let voteData = null, userVote = null;
+
+  function getVoteLocal(){ try{return JSON.parse(localStorage.getItem(VOTE_LOCAL)||'null')}catch{return null} }
+  function setVoteLocal(week, choice){ try{localStorage.setItem(VOTE_LOCAL,JSON.stringify({week,choice}))}catch{} }
+
+  async function fetchVote(){
+    if(!VOTE_BIN_ID){
+      // Demo mode — hardcoded question
+      return {week:1,q:"Which dare is worse?",tag:"DARE DEBATE · DEMO",a:{e:"🧅",l:"Onion Bite",v:42},b:{e:"🍋",l:"Lemon Bite",v:31}};
+    }
+    const res = await fetch(`${JSONBIN_BASE}/${VOTE_BIN_ID}/latest`,{headers:{'X-Master-Key':VOTE_BIN_KEY,'X-Access-Key':VOTE_BIN_KEY},signal:AbortSignal.timeout(7000)});
+    if(!res.ok) throw 0;
+    const j = await res.json();
+    return j.record;
+  }
+
+  async function saveVote(data){
+    if(!VOTE_BIN_ID) return;
+    await fetch(`${JSONBIN_BASE}/${VOTE_BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':VOTE_BIN_KEY},body:JSON.stringify(data),signal:AbortSignal.timeout(8000)});
+  }
+
+  function renderVote(data, voted){
+    const total = data.a.v + data.b.v || 1;
+    const pA = Math.round(data.a.v/total*100), pB = 100-pA;
+    document.getElementById('VOTE_Q').textContent = data.q;
+    document.getElementById('VOTE_TAG').textContent = data.tag||'SQUAD VOTE';
+    document.getElementById('VOTE_EMO_A').textContent = data.a.e;
+    document.getElementById('VOTE_LBL_A').textContent = data.a.l;
+    document.getElementById('VOTE_EMO_B').textContent = data.b.e;
+    document.getElementById('VOTE_LBL_B').textContent = data.b.l;
+    document.getElementById('VOTE_PCT_A').textContent = pA+'%';
+    document.getElementById('VOTE_PCT_B').textContent = pB+'%';
+    document.getElementById('VOTE_TOTAL').textContent = (data.a.v+data.b.v)+' total votes';
+    document.getElementById('VOTE_BAR_A').style.width = pA+'%';
+    const btnA=document.getElementById('VOTE_A'), btnB=document.getElementById('VOTE_B');
+    const fillA=document.getElementById('VOTE_FILL_A'), fillB=document.getElementById('VOTE_FILL_B');
+    setTimeout(()=>{fillA.style.width=pA+'%';fillB.style.width=pB+'%';},50);
+    if(voted){
+      btnA.classList.add('voted', voted==='a'?'voted-this':'voted-other');
+      btnB.classList.add('voted', voted==='b'?'voted-this':'voted-other');
+      btnA.disabled = btnB.disabled = true;
+    }
+    // next-question countdown (every Monday)
+    const now = new Date(), next = new Date();
+    next.setDate(now.getDate() + ((1+7-now.getDay())%7||7));
+    next.setHours(0,0,0,0);
+    const diff = next-now, days=~~(diff/86400000), hrs=~~((diff%86400000)/3600000);
+    document.getElementById('VOTE_CD').textContent = days+'d '+hrs+'h';
+  }
+
+  window.castVote = async function(choice){
+    if(!voteData || userVote) return;
+    userVote = choice;
+    voteData[choice].v++;
+    setVoteLocal(voteData.week, choice);
+    renderVote(voteData, choice);
+    showToast('🗳️','VOTE CAST!','You voted for '+voteData[choice].l,'purple',4000);
+    checkAchievement('first_vote');
+    try{ await saveVote(voteData); }catch{}
+  };
+
+  async function initVote(){
+    try{
+      voteData = await fetchVote();
+      const saved = getVoteLocal();
+      userVote = (saved && saved.week === voteData.week) ? saved.choice : null;
+      renderVote(voteData, userVote);
+    }catch{
+      document.getElementById('VOTE_Q').textContent = 'Vote coming soon! Check back later.';
+    }
+  }
+
+  const voteEl = document.getElementById('squad-vote');
+  if(voteEl){
+    const vio = new IntersectionObserver(e=>{if(e[0].isIntersecting){initVote();vio.disconnect();}},{threshold:.1});
+    vio.observe(voteEl);
+  }
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   🏅  ACHIEVEMENT BADGES
+══════════════════════════════════════════════════════════════════════ */
+;(()=>{
+  const ACH_KEY = 'cernasquad_achievements_v1';
+
+  const ACHIEVEMENTS = [
+    {id:'first_click',   icon:'🌶️', name:'First Burn',      desc:'Play Hot Sauce Clicker for the first time',     cat:'clicker'},
+    {id:'combo_king',    icon:'👑', name:'Combo King',       desc:'Hit a x5 multiplier in Clicker',                cat:'clicker'},
+    {id:'centurion',     icon:'💯', name:'Centurion',        desc:'Score 100+ in Hot Sauce Clicker',               cat:'clicker'},
+    {id:'legendary_clk', icon:'🏆', name:'Legendary',        desc:'Score 200+ in Hot Sauce Clicker',               cat:'clicker'},
+    {id:'first_blend',   icon:'🥤', name:'First Blend',      desc:'Play Mystery Smoothie Catcher once',            cat:'smoothie'},
+    {id:'clean_blend',   icon:'✨', name:'Clean Blend',      desc:'Catch 15+ good ingredients in one game',        cat:'smoothie'},
+    {id:'master_blend',  icon:'🧑‍🍳', name:'Master Blender',   desc:'Score 200+ in Mystery Smoothie Catcher',       cat:'smoothie'},
+    {id:'dare_devil',    icon:'🎡', name:'Dare Devil',        desc:'Spin the dare wheel 5 times',                   cat:'dare'},
+    {id:'dare_addict',   icon:'🔥', name:'Dare Addict',       desc:'Spin the dare wheel 15 times',                  cat:'dare'},
+    {id:'first_vote',    icon:'🗳️', name:'Has Opinions',     desc:'Cast your first squad vote',                    cat:'community'},
+    {id:'squad_og',      icon:'⭐', name:'Squad OG',          desc:'Visit the site 3 days in a row',                cat:'community'},
+    {id:'completionist', icon:'💎', name:'Completionist',    desc:'Unlock all other achievements',                  cat:'special'},
+  ];
+
+  function loadAch(){ try{return JSON.parse(localStorage.getItem(ACH_KEY)||'{}')}catch{return{}} }
+  function saveAch(d){ try{localStorage.setItem(ACH_KEY,JSON.stringify(d))}catch{} }
+
+  function renderAchievements(){
+    const data = loadAch();
+    const grid = document.getElementById('ACH_GRID'); if(!grid) return;
+    let unlocked = 0;
+    grid.innerHTML = ACHIEVEMENTS.map(a=>{
+      const u = data[a.id];
+      if(u) unlocked++;
+      const date = u ? new Date(u).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+      const isComp = a.id==='completionist';
+      const allOthers = ACHIEVEMENTS.filter(x=>x.id!=='completionist');
+      const prog = isComp ? allOthers.filter(x=>data[x.id]).length : 0;
+      const progMax = isComp ? allOthers.length : 0;
+      return `<div class="ach-card sr ${u?'unlocked':'locked'}" id="ach-${a.id}">
+        ${u?'<div class="ach-badge">✓ UNLOCKED</div>':''}
+        <span class="ach-icon">${a.icon}</span>
+        <span class="ach-name">${a.name}</span>
+        <span class="ach-desc">${a.desc}</span>
+        ${isComp?`<div class="ach-prog"><div class="ach-prog-fill" style="width:${prog/progMax*100}%"></div></div><span class="ach-desc" style="margin-top:4px">${prog}/${progMax} unlocked</span>`:''}
+        ${u?`<span class="ach-unlock-date">Unlocked ${date}</span>`:''}
+      </div>`;
+    }).join('');
+    document.getElementById('ACH_COUNT').textContent = unlocked;
+    document.getElementById('ACH_TOTAL').textContent = ACHIEVEMENTS.length;
+  }
+
+  window.checkAchievement = function(id){
+    const data = loadAch();
+    if(data[id]) return; // already unlocked
+    data[id] = Date.now();
+    saveAch(data);
+
+    // check completionist
+    const others = ACHIEVEMENTS.filter(a=>a.id!=='completionist');
+    if(others.every(a=>data[a.id]) && !data['completionist']){
+      data['completionist'] = Date.now();
+      saveAch(data);
+      setTimeout(()=>{
+        showToast('💎','COMPLETIONIST UNLOCKED!','You got every single badge. Absolute legend.','gold',8000);
+        confettiBurst();
+        renderAchievements();
+      }, 1500);
+    }
+
+    const ach = ACHIEVEMENTS.find(a=>a.id===id);
+    if(ach){
+      showToast(ach.icon, ach.name.toUpperCase()+' UNLOCKED!', ach.desc, 'gold', 6000);
+      confettiBurst();
+    }
+    renderAchievements();
+  };
+
+  // ── Dare spin counter (hook into doSpin) ──
+  const origDoSpin = window.doSpin; // not set yet — patch after init
+  // Instead patch via event — we call checkAchievement from the spin callback directly
+  // Expose for dare wheel to call
+  window.trackDareSpin = function(){
+    const n = parseInt(localStorage.getItem('cs_dare_spins')||'0') + 1;
+    localStorage.setItem('cs_dare_spins', n);
+    if(n >= 5)  checkAchievement('dare_devil');
+    if(n >= 15) checkAchievement('dare_addict');
+    document.getElementById('DS_STREAK') && (document.getElementById('DS_STREAK').textContent = n);
+  };
+
+  // ── Visit streak tracking ──
+  function trackVisit(){
+    const today = new Date().toDateString();
+    const streak = JSON.parse(localStorage.getItem('cs_visit_streak')||'{"last":"","count":0}');
+    const yesterday = new Date(Date.now()-86400000).toDateString();
+    if(streak.last === today) return; // already logged today
+    streak.count = (streak.last === yesterday) ? streak.count + 1 : 1;
+    streak.last = today;
+    localStorage.setItem('cs_visit_streak', JSON.stringify(streak));
+    if(streak.count >= 3) checkAchievement('squad_og');
+  }
+  trackVisit();
+
+  renderAchievements();
+  window.renderAchievements = renderAchievements;
 })();
 
 /* ══════ NAV + SCROLL REVEAL ══════ */
